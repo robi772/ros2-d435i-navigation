@@ -1,3 +1,6 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -6,6 +9,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
+    pkg_share = get_package_share_directory('d435i_navigation')
+    config_dir = os.path.join(pkg_share, 'config')
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -14,7 +19,7 @@ def generate_launch_description():
             description='Use simulation clock'
         ),
 
-        # ── RealSense D435i driver ────────────────────────────────────────────
+        # RealSense D435i driver
         Node(
             package='realsense2_camera',
             executable='realsense2_camera_node',
@@ -27,13 +32,13 @@ def generate_launch_description():
                 'enable_infra2': False,
                 'enable_gyro': True,
                 'enable_accel': True,
-                'unite_imu_method': 2,   # linear interpolation
+                'unite_imu_method': 2,
                 'publish_tf': True,
                 'use_sim_time': use_sim_time,
             }]
         ),
 
-        # ── Depth → LaserScan ────────────────────────────────────────────────
+        # Depth -> LaserScan
         Node(
             package='depthimage_to_laserscan',
             executable='depthimage_to_laserscan_node',
@@ -44,10 +49,10 @@ def generate_launch_description():
                 ('depth_camera_info', '/camera/depth/camera_info'),
                 ('scan', '/scan'),
             ],
-            parameters=['/ws/config/depth_to_scan.yaml']
+            parameters=[os.path.join(config_dir, 'depth_to_scan.yaml')]
         ),
 
-        # ── IMU → minimal odometry ───────────────────────────────────────────
+        # IMU -> minimal odometry
         Node(
             package='d435i_navigation',
             executable='imu_yaw_to_odom',
@@ -55,26 +60,26 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # ── SLAM Toolbox ─────────────────────────────────────────────────────
+        # SLAM Toolbox
         Node(
             package='slam_toolbox',
             executable='async_slam_toolbox_node',
             name='slam_toolbox',
             output='screen',
             parameters=[
-                '/ws/config/slam_toolbox.yaml',
+                os.path.join(config_dir, 'slam_toolbox.yaml'),
                 {'use_sim_time': use_sim_time}
             ]
         ),
 
-        # ── Nav2 bringup ──────────────────────────────────────────────────────
+        # Nav2 bringup
         Node(
             package='nav2_bringup',
             executable='bringup_launch.py',
             name='nav2_bringup',
             output='screen',
             parameters=[
-                '/ws/config/nav2_params.yaml',
+                os.path.join(config_dir, 'nav2_params.yaml'),
                 {'use_sim_time': use_sim_time}
             ]
         ),
