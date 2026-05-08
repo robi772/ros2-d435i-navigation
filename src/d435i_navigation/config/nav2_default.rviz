@@ -1,0 +1,43 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Class: rviz_default_plugins/Map
+      Name: Map
+      Topic:
+        Value: /map
+    - Alpha: 1.0
+      Class: rviz_default_plugins/LaserScan
+      Name: LaserScan
+      Topic:
+        Value: /scan
+      Size (m): 0.05
+      Color: 255; 0; 0
+    - Class: rviz_default_plugins/Axes
+      Name: Axes
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: false
+    - Alpha: 1.0
+      Class: rviz_default_plugins/PointCloud2
+      Name: DepthCloud
+      Topic:
+        Value: /camera/depth/color/points
+      Size (m): 0.02
+    - Class: nav2_rviz_plugins/Nav2Panel
+      Name: Navigation 2
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: false
+  Global Options:
+    Fixed Frame: map
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/PublishPoint
+    - Class: nav2_rviz_plugins/GoalTool
+  Value: true
