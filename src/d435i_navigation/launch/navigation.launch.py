@@ -2,7 +2,8 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -10,6 +11,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     pkg_share = get_package_share_directory('d435i_navigation')
+    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     config_dir = os.path.join(pkg_share, 'config')
 
     return LaunchDescription([
@@ -19,6 +21,7 @@ def generate_launch_description():
             description='Use simulation clock'
         ),
 
+        # RealSense D435i driver
         Node(
             package='realsense2_camera',
             executable='realsense2_camera_node',
@@ -37,6 +40,7 @@ def generate_launch_description():
             }]
         ),
 
+        # Depth -> LaserScan
         Node(
             package='depthimage_to_laserscan',
             executable='depthimage_to_laserscan_node',
@@ -50,6 +54,7 @@ def generate_launch_description():
             parameters=[os.path.join(config_dir, 'depth_to_scan.yaml')]
         ),
 
+        # IMU -> minimal odometry
         Node(
             package='d435i_navigation',
             executable='imu_yaw_to_odom',
@@ -57,6 +62,7 @@ def generate_launch_description():
             output='screen'
         ),
 
+        # SLAM Toolbox
         Node(
             package='slam_toolbox',
             executable='async_slam_toolbox_node',
@@ -68,14 +74,14 @@ def generate_launch_description():
             ]
         ),
 
-        Node(
-            package='nav2_bringup',
-            executable='bringup_launch.py',
-            name='nav2_bringup',
-            output='screen',
-            parameters=[
-                os.path.join(config_dir, 'nav2_params.yaml'),
-                {'use_sim_time': use_sim_time}
-            ]
+        # Nav2 bringup -- IncludeLaunchDescription-nal kell hivni, nem Node()-kent
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'params_file': os.path.join(config_dir, 'nav2_params.yaml'),
+            }.items()
         ),
     ])
