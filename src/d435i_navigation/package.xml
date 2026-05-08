@@ -2,7 +2,7 @@
 <package format="3">
   <name>d435i_navigation</name>
   <version>0.1.0</version>
-  <description>ROS2 D435i navigation package</description>
+  <description>ROS2 Kilted Kaiju D435i navigation package</description>
   <maintainer email="robi772@users.noreply.github.com">robi772</maintainer>
   <license>MIT</license>
 

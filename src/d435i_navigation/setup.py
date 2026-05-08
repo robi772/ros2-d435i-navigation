@@ -14,7 +14,7 @@ setup(
     zip_safe=True,
     maintainer='robi772',
     maintainer_email='robi772@users.noreply.github.com',
-    description='ROS2 D435i navigation package',
+    description='ROS2 Kilted Kaiju D435i navigation package',
     license='MIT',
     tests_require=['pytest'],
     entry_points={

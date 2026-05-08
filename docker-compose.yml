@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   ros2_d435i_nav:
     build:
@@ -10,7 +9,7 @@ services:
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - ROS_DOMAIN_ID=0
-      - DISPLAY=${DISPLAY}
+      - DISPLAY=${DISPLAY:-:0}
       - QT_X11_NO_MITSHM=1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
@@ -19,4 +18,8 @@ services:
       - ./launch:/ws/launch:rw
     devices:
       - /dev:/dev
-    command: bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install && source install/setup.bash && ros2 launch d435i_navigation navigation.launch.py"
+    command: bash -c "
+      source /opt/ros/kilted/setup.bash &&
+      colcon build --symlink-install &&
+      source install/setup.bash &&
+      ros2 launch d435i_navigation navigation.launch.py"
