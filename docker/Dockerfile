@@ -3,11 +3,19 @@ FROM osrf/ros:kilted-desktop
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 
-# RealSense SDK + udev szabalyok + ROS2 csomagok
+# NVIDIA OpenGL support (RViz2-hoz)
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute
+ENV __NV_PRIME_RENDER_OFFLOAD=1
+ENV __GLX_VENDOR_LIBRARY_NAME=nvidia
+
 RUN apt-get update && apt-get install -y \
     python3-colcon-common-extensions \
     python3-pip \
     udev \
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    mesa-utils \
     ros-kilted-navigation2 \
     ros-kilted-nav2-bringup \
     ros-kilted-slam-toolbox \
@@ -16,11 +24,6 @@ RUN apt-get update && apt-get install -y \
     ros-kilted-rviz2 \
     ros-kilted-tf2-ros \
     && rm -rf /var/lib/apt/lists/*
-
-# librealsense udev szabalyok masolasa a kontenerbe
-RUN mkdir -p /etc/udev/rules.d && \
-    find /opt/ros/kilted -name '99-realsense-libusb.rules' \
-         -exec cp {} /etc/udev/rules.d/ \; 2>/dev/null || true
 
 WORKDIR /ws
 COPY src /ws/src

@@ -21,11 +21,12 @@ def generate_launch_description():
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument(
             'launch_rviz',
-            default_value='false',
-            description='Inditsa-e az RViz2-t (csak ha van display)'
+            default_value='true',
+            description='Inditsa-e az RViz2-t'
         ),
 
         # RealSense D435i driver
+        # unite_imu_method=1 (copy) stabilabb mint 2 (interpolate) frame timeout ellen
         Node(
             package='realsense2_camera',
             executable='realsense2_camera_node',
@@ -38,9 +39,13 @@ def generate_launch_description():
                 'enable_infra2': False,
                 'enable_gyro': True,
                 'enable_accel': True,
-                'unite_imu_method': 2,
+                'unite_imu_method': 1,        # copy: stabilabb mint interpolate
                 'publish_tf': True,
                 'use_sim_time': use_sim_time,
+                'depth_fps': 15,              # 30->15 FPS: csokkenti USB bandwidth-et
+                'color_fps': 15,
+                'gyro_fps': 200,
+                'accel_fps': 63,
             }]
         ),
 
@@ -89,7 +94,7 @@ def generate_launch_description():
             }.items()
         ),
 
-        # RViz2 -- csak ha launch_rviz:=true
+        # RViz2
         Node(
             condition=IfCondition(launch_rviz),
             package='rviz2',
