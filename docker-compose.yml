@@ -13,10 +13,10 @@ services:
       - ./src:/ws/src:rw
       - ./config:/ws/config:rw
       - ./launch:/ws/launch:rw
-      # udev szabalyok a RealSense USB felismereshez
       - /run/udev:/run/udev:ro
+      - /dev/bus/usb:/dev/bus/usb
     devices:
-      - /dev:/dev
+      - /dev/bus/usb:/dev/bus/usb
     group_add:
       - plugdev
     command: bash -c "
