@@ -9,17 +9,7 @@ services:
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - ROS_DOMAIN_ID=0
-      - DISPLAY=${DISPLAY:-:0}
-      - QT_X11_NO_MITSHM=1
-      - XAUTHORITY=${XAUTHORITY:-/root/.Xauthority}
     volumes:
-      # X11 socket — csak natív Linux Docker Engine esetén szükséges.
-      # Docker Desktop esetén kommenteld ki az alábbi sort.
-      - type: bind
-        source: /tmp/.X11-unix
-        target: /tmp/.X11-unix
-        bind:
-          create_host_path: false
       - ./src:/ws/src:rw
       - ./config:/ws/config:rw
       - ./launch:/ws/launch:rw
@@ -30,3 +20,22 @@ services:
       colcon build --symlink-install &&
       source install/setup.bash &&
       ros2 launch d435i_navigation navigation.launch.py"
+
+  # Opcionalis RViz2 vizualizacio - csak ha fut X11/Wayland display
+  # Inditasa: docker compose --profile rviz up
+  rviz2:
+    profiles: ["rviz"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: rviz2
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=${XAUTHORITY:-/root/.Xauthority}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: bash -c "
+      source /opt/ros/kilted/setup.bash &&
+      rviz2"
